@@ -19,8 +19,14 @@ struct Carta
         os << carta.valor << nomeNaipe[carta.naipe];
         return os;
     }
-    bool operator==(const Carta& other) const {
-        return naipe == other.naipe && valor == other.valor;
+    bool operator==(const Carta& other) {
+        return valor == other.valor && naipe == other.naipe;
+    }
+    bool operator>(const Carta& other) {
+        return valor > other.valor;
+    }
+    bool operator<(const Carta& other) {
+        return valor < other.valor;
     }
 
 };

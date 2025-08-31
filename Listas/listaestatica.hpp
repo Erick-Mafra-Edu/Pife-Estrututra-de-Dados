@@ -16,22 +16,35 @@ struct ListaEstatica{
 	int indice = -1;
 	ListaAuxiliar<Tipo> itensOrdenado[maxItems] = {};
 	// adiciona um item na lista
-	void addItem(Tipo input){
-		if(indice >= maxItems)
-			throw "voce ta tentando adicionar mais itens que o maximo suportado";
+	bool addItem(Tipo input){
+		if((indice+1) >= maxItems)
+			return false;
+			// throw "voce ta tentando adicionar mais itens que o maximo suportado";
+
 		items[++indice] = input;
 		copyItems();
+		return true;
 	}
 	// devolve o item na posicao i
 	Tipo getItem(int i){
-		if(i >= indice || i < 0)
+		if(i >= (indice + 1) || i < 0)
 			throw "voce ta consultando fora do range";
 		return items[i];
 	}
 	Tipo operator[](int i){
 		return getItem(i);
 	}
-	
+	// remove o item na posicao i e desloca os elementos posteriores
+	bool removeItem(int i) {
+		if (i > indice || i < 0)
+			return false;
+		for (int j = i; j < indice; j++) {
+			items[j] = items[j + 1];
+		}
+		indice--;
+		copyItems();
+		return true;
+	}
 	// devolve o indice do item na lista original
 	// se nao encontrar retorna -1
 	int searchItem(Tipo item){
@@ -52,15 +65,15 @@ struct ListaEstatica{
 	}
 
 	ListaEstatica<int> procurarTrios(Tipo item) {
-		ListaEstatica<int> indices;
+		ListaEstatica<int> indices = {};
 		int left = 0;
-		int right = indice - 1;
+		int right = indice; 
 		int found = -1;
 
 		// Busca binária para encontrar uma ocorrência
 		while (left <= right) {
-			int mid = (left + right) / 2;
-			if (itensOrdenado[mid].item == item) {
+			int mid = left + (right - left) / 2;
+			if (itensOrdenado[mid].item.valor == item.valor) {
 				found = mid;
 				break;
 			} else if (itensOrdenado[mid].item < item) {
@@ -72,13 +85,18 @@ struct ListaEstatica{
 
 		if (found == -1)
 			return indices; // Não encontrou
-		
-			//Procurar 2 indices a frente e 2 atras
-			for (int i = -2; i <= 2; i++) {
-				if (found + i >= 0 && found + i < indice) {
-					indices.addItem(itensOrdenado[found + i].indice);
-				}
-			}
+
+		// A partir do item encontrado, expanda para a esquerda para achar o primeiro
+		int start = found;
+		while (start > 0 && itensOrdenado[start - 1].item == item) {
+			start--;
+		}
+
+		// A partir do primeiro, colete todos os itens iguais para a direita
+		while (start <= indice && itensOrdenado[start].item == item) {
+			indices.addItem(itensOrdenado[start].indice);
+			start++;
+		}
 		
 		return indices;
 	}
@@ -86,7 +104,7 @@ struct ListaEstatica{
 
 	// Copia os itens para o vetor auxiliar e ordena
 	void copyItems(){
-		for(int i = 0;i < indice;i++){
+		for(int i = 0;i < indice+1;i++){
 			itensOrdenado[i].item = items[i];
 			itensOrdenado[i].indice = i;
 		}
@@ -114,7 +132,7 @@ struct ListaEstatica{
 		}
 	}
 	void printItems(){
-		for(int i = 0;i < indice;i++){
+		for(int i = 0;i < indice+1;i++){
 			std::cout << "Item: " << items[i] << std::endl;
 		}
 	}

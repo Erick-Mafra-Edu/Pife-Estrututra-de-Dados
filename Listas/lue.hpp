@@ -12,7 +12,7 @@ struct NoLUE{
 
 template <typename T>
 struct LUE{
-    NoLUE <T> *comeco, *fim;
+    NoLUE <T> *comeco = {}, *fim = {};
 
     // Operador []
     T& operator[](int i) {
@@ -22,7 +22,7 @@ struct LUE{
             aux = aux->elo;
             idx++;
         }
-        if (aux == NULL) throw std::out_of_range("Index out of range");
+        // if (aux == NULL) throw std::out_of_range("Index out of range");
         // cout << aux->info << endl;
         return aux->info;
     }
@@ -154,6 +154,16 @@ struct LUE{
         ant->elo = aux->elo;
         delete aux;
         return true;
+    }
+
+    int comprimento(){
+        int comp = 0;
+        NoLUE<T> *aux = comeco;
+        while(aux != nullptr){
+            comp++;
+            aux = aux->elo;
+        }
+        return comp;
     }
 
     // Liberar

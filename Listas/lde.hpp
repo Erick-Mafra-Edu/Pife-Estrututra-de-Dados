@@ -13,7 +13,7 @@ struct NoLDE{
 template <typename T>
 struct LDE{
     NoLDE <T> *comeco = NULL, *fim = NULL;
-    T operator[](int i) {
+    T& operator[](int i) {
         return getItem(i);
     }
 
@@ -46,7 +46,7 @@ struct LDE{
         }
     }
 
-    bool inserir(T valor) {
+    bool inserirOrdem(T valor) {
         NoLDE <T> *novo = new NoLDE<T>;
         if(novo == NULL) return false;
 
@@ -87,8 +87,26 @@ struct LDE{
         }
         return false;
     }
+    bool inserirComeco(T valor) {
+        NoLDE <T> *novo = new NoLDE<T>;
+        if(novo == NULL) return false;
 
-    T getItem(int i) {
+        novo->info = valor;
+        novo->eloA = NULL;
+        novo->eloP = NULL;
+
+        if(comeco == NULL) { // Lista vazia
+            comeco = novo;
+            fim = novo;
+        }
+        else {
+            novo->eloP = comeco;
+            comeco->eloA = novo;
+            comeco = novo;
+        }
+        return true;
+    }
+    T& getItem(int i) {
         NoLDE<T> *aux = comeco;
         int idx = 0;
         while(aux != NULL && idx < i) {
