@@ -1,0 +1,16 @@
+Bubble Sort (Ordenação por Bolha)
+
+Compara elementos adjacentes e os troca se estiverem na ordem errada.
+Repete o processo até a lista estar ordenada.
+Fácil de entender e implementar, embora não seja eficiente para listas grandes.
+
+Selection Sort (Ordenação por Seleção)
+Encontra o menor elemento e o coloca na primeira posição.
+Repete para as posições seguintes.
+Simples, mas também não é eficiente para grandes volumes de dados.
+
+
+Insertion Sort (Ordenação por Inserção)
+Constrói a lista ordenada um elemento de cada vez, inserindo cada novo elemento na posição correta.
+Rápido para listas pequenas ou quase ordenadas.
+
