@@ -1,96 +1,184 @@
-#ifndef LUE_HPP
-#define LUE_HPP
+#ifndef LUE_PADRONIZADO_HPP
+#define LUE_PADRONIZADO_HPP
 
 #include <iostream>
 using namespace std;
 
 template <typename T>
-struct NoLUE{
+struct NoLUE {
     T info;
-    NoLUE <T> *elo;
+    NoLUE<T>* elo;
 };
 
 template <typename T>
-struct LUE{
-    NoLUE <T> *comeco = {}, *fim = {};
+struct Lista {
+    NoLUE<T>* comeco = nullptr;
+    NoLUE<T>* fim = nullptr;
+    int tamanho = -1;
 
-    // Operador []
+    // Acesso indexado (referência)
     T& operator[](int i) {
+        return getItem(i);
+    }
+    bool vazia(){
+        return tamanho == -1;
+    }
+    // Adiciona no final
+    bool addItem(T valor) {
+        return inserirFinal(valor);
+    }
+
+    // Acessa item na posição i
+    T& getItem(int i) {
+        if (i < 0 || i > tamanho)
+            throw "Índice fora do range";
         NoLUE<T>* aux = comeco;
         int idx = 0;
-        while (aux != NULL && idx < i) {
+        while (aux != nullptr && idx < i) {
             aux = aux->elo;
             idx++;
         }
-        // if (aux == NULL) throw std::out_of_range("Index out of range");
-        // cout << aux->info << endl;
         return aux->info;
     }
 
-    // Inicializar
-    void inicializar(){
-        comeco = NULL;
-        fim = NULL;
-    }
-
-    // Inserir no final
-    bool inserirFinal(T valor){
-        NoLUE <T> *novo = new NoLUE <T>;
-        if(novo == NULL) return false;
-
-        novo->info = valor;
-        novo->elo = NULL;
-
-        if(comeco == NULL){ // Lista está vazia
-            comeco = novo;
-            fim = novo;
+    // Remove item na posição i (por índice)
+    bool removeItem(int i) {
+        if (i < 0 || i > tamanho || comeco == nullptr)
+            return false;
+        if (i == 0) {
+            NoLUE<T>* temp = comeco;
+            comeco = comeco->elo;
+            if (comeco == nullptr)
+                fim = nullptr;
+            delete temp;
+            tamanho--;
+            return true;
         }
-        else{
-            fim->elo = novo;
-            fim = novo;
+        NoLUE<T>* atual = comeco;
+        NoLUE<T>* anterior = nullptr;
+        int idx = 0;
+        while (atual != nullptr && idx < i) {
+            anterior = atual;
+            atual = atual->elo;
+            idx++;
         }
+        if (atual == nullptr)
+            return false;
+        anterior->elo = atual->elo;
+        if (atual == fim)
+            fim = anterior;
+        delete atual;
+        tamanho--;
         return true;
     }
 
-    // Mostrar
-    void mostrar(){
-        NoLUE <T> *aux = comeco;
-        while(aux != NULL){
+    // Busca por valor, retorna índice do primeiro igual
+    int searchItem(T valor) {
+        NoLUE<T>* aux = comeco;
+        int idx = 0;
+        while (aux != nullptr) {
+            if (aux->info == valor) return idx;
+            aux = aux->elo;
+            idx++;
+        }
+        return -1;
+    }
+
+    // Procurar todos os índices de itens com o mesmo .valor do argumento
+    Lista<int> procurarTrios(const T& item) {
+        Lista<int> indices;
+        NoLUE<T>* aux = comeco;
+        int idx = 0;
+        while (aux != nullptr) {
+            if (aux->info.valor == item.valor) {
+                indices.addItem(idx);
+            }
+            aux = aux->elo;
+            idx++;
+        }
+        return indices;
+    }
+
+    // Exibe todos os itens
+    void printItems() {
+        NoLUE<T>* aux = comeco;
+        while (aux != nullptr) {
             cout << aux->info << " ";
             aux = aux->elo;
         }
+        cout << endl;
     }
 
-    // Inserir ordenado
-    bool inserirOrdem(T valor){
-        NoLUE <T> *novo = new NoLUE<T>;
-        if(novo == NULL) return false;
+    // Limpa a lista
+    void clear() {
+        liberar();
+    }
 
+    // Métodos originais e utilitários
+    void inicializar() {
+        comeco = nullptr;
+        fim = nullptr;
+        tamanho = 0;
+    }
+
+    bool inserirFinal(T valor) {
+        NoLUE<T>* novo = new NoLUE<T>;
+        if (novo == nullptr) return false;
         novo->info = valor;
-        novo->elo = NULL;
-
-        if(comeco == NULL){ // Lista vazia
+        novo->elo = nullptr;
+        if (comeco == nullptr) {
             comeco = novo;
             fim = novo;
-            return true;
-        }
-        if(valor < comeco->info){ // Inserção no começo
-            novo->elo = comeco;
-            comeco = novo;
-            return true;
-        }
-        if(valor > fim->info){ // Inserção no final
+        } else {
             fim->elo = novo;
             fim = novo;
+        }
+        tamanho++;
+        return true;
+    }
+
+    bool inserirComeco(T valor) {
+        NoLUE<T>* novo = new NoLUE<T>;
+        if (novo == nullptr) return false;
+        novo->info = valor;
+        novo->elo = comeco;
+        if (comeco == nullptr)
+            fim = novo;
+        comeco = novo;
+        tamanho++;
+        return true;
+    }
+
+    bool inserirOrdem(T valor) {
+        NoLUE<T>* novo = new NoLUE<T>;
+        if (novo == nullptr) return false;
+        novo->info = valor;
+        novo->elo = nullptr;
+        if (comeco == nullptr) {
+            comeco = novo;
+            fim = novo;
+            tamanho++;
             return true;
         }
-        // Inserção no meio da lista
-        NoLUE <T> *ant = comeco;
-        NoLUE <T> *prox = ant->elo;
-        while(prox != NULL){
-            if(ant->info < valor && valor < prox->info){
+        if (valor < comeco->info) {
+            novo->elo = comeco;
+            comeco = novo;
+            tamanho++;
+            return true;
+        }
+        if (valor > fim->info) {
+            fim->elo = novo;
+            fim = novo;
+            tamanho++;
+            return true;
+        }
+        NoLUE<T>* ant = comeco;
+        NoLUE<T>* prox = ant->elo;
+        while (prox != nullptr) {
+            if (ant->info < valor && valor < prox->info) {
                 ant->elo = novo;
                 novo->elo = prox;
+                tamanho++;
                 return true;
             }
             ant = prox;
@@ -98,87 +186,66 @@ struct LUE{
         }
         return false;
     }
-    // Inserir no começo
-    bool inserirComeco(T valor) {
-        NoLUE<T> *novo = new NoLUE<T>;
-        if (novo == NULL) return false;
 
-        novo->info = valor;
-        novo->elo = comeco;
-
-        if (comeco == NULL) { // Lista vazia
-            fim = novo;
-        }
-        comeco = novo;
-        return true;
-    }
-    // Localizar
-    NoLUE <T> * localizar(T valor){
-        NoLUE <T> *aux = comeco;
-        while(aux != NULL){
-            if(aux->info == valor) return aux;
+    NoLUE<T>* localizar(T valor) {
+        NoLUE<T>* aux = comeco;
+        while (aux != nullptr) {
+            if (aux->info == valor) return aux;
             aux = aux->elo;
         }
-        return NULL;
+        return nullptr;
     }
 
-    // Retirar
-    bool retirar(T valor){
-        NoLUE <T> *ant = NULL, *aux = comeco;
-
-        while(aux != NULL){
-            if(valor == aux->info) break;
+    bool retirar(T valor) {
+        NoLUE<T>* ant = nullptr, *aux = comeco;
+        while (aux != nullptr) {
+            if (valor == aux->info) break;
             ant = aux;
             aux = aux->elo;
         }
-        if(aux == NULL) return false;
-
-        if(aux == comeco && aux == fim){ // Unico elemento
-            comeco = NULL;
-            fim = NULL;
+        if (aux == nullptr) return false;
+        if (aux == comeco && aux == fim) {
+            comeco = nullptr;
+            fim = nullptr;
             delete aux;
+            tamanho--;
             return true;
         }
-        if(aux == comeco){ // Retirando o primeiro
+        if (aux == comeco) {
             comeco = aux->elo;
             delete aux;
+            tamanho--;
             return true;
         }
-        if(aux == fim){ // Retirando o ultimo
-            ant->elo = NULL;
+        if (aux == fim) {
+            ant->elo = nullptr;
             fim = ant;
             delete aux;
+            tamanho--;
             return true;
         }
-        // Retirando do meio
         ant->elo = aux->elo;
         delete aux;
+        tamanho--;
         return true;
     }
 
-    int comprimento(){
-        int comp = 0;
-        NoLUE<T> *aux = comeco;
-        while(aux != nullptr){
-            comp++;
-            aux = aux->elo;
-        }
-        return comp;
+    int comprimento() {
+        return tamanho;
     }
 
-    // Liberar
-    void liberar(){
-        NoLUE <T> *aux = comeco;
-        NoLUE <T> *prox;
-
-        while(aux != NULL){
+    void liberar() {
+        NoLUE<T>* aux = comeco;
+        NoLUE<T>* prox;
+        while (aux != nullptr) {
             prox = aux->elo;
             delete aux;
             aux = prox;
         }
-        comeco = NULL;
-        fim = NULL;
+        comeco = nullptr;
+        fim = nullptr;
+        tamanho = 0;
     }
 };
 
-#endif // LUE_HPP
+#endif // LUE_PADRONIZADO_HPP

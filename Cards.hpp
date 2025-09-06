@@ -22,6 +22,9 @@ struct Carta
     bool operator==(const Carta& other) {
         return valor == other.valor && naipe == other.naipe;
     }
+    bool operator!=(const Carta& other) {
+        return valor == other.valor;
+    }
     bool operator>(const Carta& other) {
         return valor > other.valor;
     }

@@ -1,7 +1,7 @@
 #include "Cards.hpp"
 #include "./Listas/lue.hpp"
 
-void inicializarBaralho(LUE<Carta>& baralho) {
+void inicializarBaralho(Lista<Carta>& baralho) {
     // Valores das cartas (A, 2, ..., K)
     std::string valores[13] = {"A","2","3","4","5","6","7","8","9","10","J","Q","K"};
     
